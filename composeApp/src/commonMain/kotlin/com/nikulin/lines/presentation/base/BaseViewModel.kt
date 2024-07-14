@@ -28,8 +28,10 @@ abstract class BaseViewModel<State, Effect, Action>(initialState: State) : ViewM
         _effects.emit(effect)
     }
 
-    suspend fun sendAction(action: Action) {
-        actions.emit(action)
+    fun sendAction(action: Action) {
+        viewModelScope.launch {
+            actions.emit(action)
+        }
     }
 
     abstract fun reduce(action: Action)

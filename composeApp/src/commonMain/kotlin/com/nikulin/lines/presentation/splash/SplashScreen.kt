@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.SharedFlow
 fun SplashRoute(
     state: SplashScreenState,
     effects: SharedFlow<SplashScreenEffect>,
-    sendAction: suspend (SplashScreenAction) -> Unit
+    sendAction: (SplashScreenAction) -> Unit
 ) {
     val navigator = LocalNavigator.current
 
