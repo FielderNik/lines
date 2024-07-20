@@ -24,8 +24,8 @@ class UploadViewModel(
     override fun reduce(action: UploadScreenAction) {
         viewModelScope.launch {
             when (action) {
-                UploadScreenAction.RequestUploadFile -> {
-
+                UploadScreenAction.Initialize -> {
+                    loadHasMainLanguage()
                 }
 
                 is UploadScreenAction.ApplyFile -> {
@@ -39,6 +39,15 @@ class UploadViewModel(
                 }
             }
         }
+    }
+
+    private suspend fun loadHasMainLanguage() {
+        withContext(ioDispatcher) {
+            linesRepository.getLanguages()
+        }
+            .onSuccess { languages ->
+                screenState.hasMainLanguage.value = languages.any { it.isMain }
+            }
     }
 
     private suspend fun parseAndSaveLines(file: PlatformFile, language: Language) {

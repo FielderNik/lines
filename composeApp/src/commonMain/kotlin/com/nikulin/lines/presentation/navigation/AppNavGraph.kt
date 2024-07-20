@@ -8,16 +8,16 @@ import com.nikulin.lines.presentation.splash.SplashRoute
 import com.nikulin.lines.presentation.splash.SplashViewModel
 import com.nikulin.lines.presentation.upload.UploadRoute
 import com.nikulin.lines.presentation.upload.UploadViewModel
-import org.koin.compose.viewmodel.koinNavViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 
 @OptIn(KoinExperimentalAPI::class)
 fun NavGraphBuilder.appNavGraph() {
 
     composable(
-        route = Destinations.Splash.route) {
-
-        val viewModel: SplashViewModel = koinNavViewModel<SplashViewModel>()
+        route = Destinations.Splash.route
+    ) {
+        val viewModel: SplashViewModel = koinViewModel<SplashViewModel>()
         val screenState = viewModel.screenState
 
         SplashRoute(
@@ -30,7 +30,7 @@ fun NavGraphBuilder.appNavGraph() {
     composable(
         route = Destinations.Main.route
     ) {
-        val viewModel: MainViewModel = koinNavViewModel<MainViewModel>()
+        val viewModel: MainViewModel = koinViewModel<MainViewModel>()
         val screenState = viewModel.screenState
         MainRoute(
             screenState = screenState,
@@ -42,7 +42,7 @@ fun NavGraphBuilder.appNavGraph() {
     composable(
         route = Destinations.Upload.route
     ) {
-        val viewModel: UploadViewModel = koinNavViewModel<UploadViewModel>()
+        val viewModel: UploadViewModel = koinViewModel<UploadViewModel>()
         val screenState = viewModel.screenState
 
         UploadRoute(

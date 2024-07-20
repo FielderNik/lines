@@ -33,7 +33,7 @@ class LinesRepositoryImpl : LinesRepository {
         } else {
             val languages = lines.map { it.values }.map { it.keys }.flatten().distinct()
             Result.success(languages)
-
         }
     }
+
 }

@@ -11,7 +11,6 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
     startDestination: String = Destinations.Splash.route,
 ) {
-
     NavHost(
         navController = navController,
         startDestination = startDestination,

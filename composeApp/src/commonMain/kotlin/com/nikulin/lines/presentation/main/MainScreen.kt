@@ -34,6 +34,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.SharedFlow
+import lines.composeapp.generated.resources.Res
+import lines.composeapp.generated.resources.title_key
+import lines.composeapp.generated.resources.title_main_with_brackets
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun MainRoute(
@@ -80,17 +84,22 @@ fun TableScreen(
         LazyColumn(Modifier.fillMaxSize().padding(16.dp)) {
 
             stickyHeader {
-                Row(Modifier.background(Color.Gray)/*, horizontalArrangement = Arrangement.spacedBy(4.dp)*/) {
+                Row(Modifier.background(Color.Gray)) {
 
-                    TableCellRightBorder(text = "Ключ", weight = column1Weight)
+                    TableCellRightBorder(text = stringResource(Res.string.title_key), weight = column1Weight)
 
                     screenState.languages.forEachIndexed { index, language ->
-                        if (index != screenState.languages.lastIndex) {
+                        val languageText = if (!language.isMain) {
+                            language.value
+                        } else {
+                            "${language.value} ${stringResource(Res.string.title_main_with_brackets)}"
+                        }
 
-                            TableCellRightBorder(text = language.value, weight = column2Weight)
+                        if (index != screenState.languages.lastIndex) {
+                            TableCellRightBorder(text = languageText, weight = column2Weight)
                         } else {
 
-                            TableCell(text = language.value, weight = column2Weight)
+                            TableCell(text = languageText, weight = column2Weight)
                         }
 
                     }
@@ -100,7 +109,7 @@ fun TableScreen(
 
             itemsIndexed(items = screenState.lines) { index, item ->
                 val (key, translations) = item
-                Row(modifier = Modifier.fillMaxWidth(),/* horizontalArrangement = Arrangement.spacedBy(4.dp)*/) {
+                Row(modifier = Modifier.fillMaxWidth()) {
                     TableCellRightBorder(text = key, weight = column1Weight)
 
                     screenState.languages.forEachIndexed { index, language ->

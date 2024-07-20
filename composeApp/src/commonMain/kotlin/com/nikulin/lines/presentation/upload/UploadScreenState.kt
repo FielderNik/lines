@@ -8,6 +8,8 @@ import io.github.vinceglb.filekit.core.PlatformFile
 class UploadScreenState {
 
     val languageValue: MutableState<String?> = mutableStateOf(null)
+    val isMainLanguage: MutableState<Boolean> = mutableStateOf(false)
+    val hasMainLanguage: MutableState<Boolean> = mutableStateOf(false)
 
 }
 
@@ -16,7 +18,7 @@ sealed class UploadScreenEffect {
 }
 
 sealed class UploadScreenAction {
-    data object RequestUploadFile : UploadScreenAction()
+    data object Initialize : UploadScreenAction()
     data class ApplyFile(val file: PlatformFile): UploadScreenAction()
     data class SaveLines(val language: Language) : UploadScreenAction()
 }
