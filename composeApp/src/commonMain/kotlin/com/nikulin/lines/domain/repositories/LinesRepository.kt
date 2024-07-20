@@ -2,6 +2,7 @@ package com.nikulin.lines.domain.repositories
 
 import com.nikulin.lines.domain.models.Language
 import com.nikulin.lines.domain.models.Line
+import com.nikulin.lines.domain.models.addLine
 
 interface LinesRepository {
     suspend fun getLines(): Result<List<Line>>
@@ -12,7 +13,7 @@ interface LinesRepository {
 
 class LinesRepositoryImpl : LinesRepository {
 
-    private var lines: List<Line> = mutableListOf()
+    private var lines: MutableList<Line> = mutableListOf()
 
     override suspend fun getLines(): Result<List<Line>> {
         return Result.success(lines)
@@ -23,7 +24,9 @@ class LinesRepositoryImpl : LinesRepository {
     }
 
     override suspend fun saveLines(lines: List<Line>): Result<Unit> {
-        this.lines = lines
+        lines.forEach { line ->
+            this.lines.addLine(line)
+        }
         return Result.success(Unit)
     }
 
