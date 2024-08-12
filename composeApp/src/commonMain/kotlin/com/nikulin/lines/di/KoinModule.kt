@@ -1,7 +1,10 @@
 package com.nikulin.lines.di
 
 import com.nikulin.lines.core.DispatchProvider
+import com.nikulin.lines.core.FileStructureParser
 import com.nikulin.lines.core.LinesParser
+import com.nikulin.lines.domain.repositories.FileStructureRepository
+import com.nikulin.lines.domain.repositories.FileStructureRepositoryImpl
 import com.nikulin.lines.domain.repositories.LinesRepository
 import com.nikulin.lines.domain.repositories.LinesRepositoryImpl
 import com.nikulin.lines.presentation.main.MainViewModel
@@ -29,8 +32,12 @@ private val dataModule = module {
 }
 
 private val repositoryModule = module {
-    single <LinesRepository> {
+    single<LinesRepository> {
         LinesRepositoryImpl()
+    }
+
+    single<FileStructureRepository> {
+        FileStructureRepositoryImpl()
     }
 }
 
@@ -43,6 +50,8 @@ private val coreModule = module {
     singleOf(::DispatchProvider)
 
     factoryOf(::LinesParser)
+
+    singleOf(::FileStructureParser)
 }
 
 fun initKoin() {
