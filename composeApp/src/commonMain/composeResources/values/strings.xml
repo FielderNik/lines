@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Lines</string>
+
+
+    <string name="action_apply">Применить</string>
+    <string name="action_upload">Загрузить</string>
+    <string name="action_add_language">Добавить язык</string>
+    <string name="action_upload_translate">Загрузить перевод</string>
+    <string name="action_unload_xml">Выгрузить XML</string>
+
+    <string name="title_main">Основной</string>
+    <string name="title_main_with_brackets">(основной)</string>
+    <string name="title_enter_language">Введите язык</string>
+    <string name="title_key">Ключ</string>
+</resources>

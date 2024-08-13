@@ -1,209 +1,326 @@
 package com.nikulin.lines.presentation.main
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.Divider
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.nikulin.lines.domain.repositories.languages
-import com.nikulin.lines.domain.repositories.mock
-import com.nikulin.lines.domain.repositories.mock1
+import com.nikulin.lines.presentation.components.dialogs.LanguageDialog
+import com.nikulin.lines.presentation.components.dialogs.SelectLanguageDialog
+import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
+import kotlinx.coroutines.flow.SharedFlow
+import lines.composeapp.generated.resources.Res
+import lines.composeapp.generated.resources.action_add_language
+import lines.composeapp.generated.resources.action_unload_xml
+import lines.composeapp.generated.resources.action_upload_translate
+import lines.composeapp.generated.resources.title_key
+import lines.composeapp.generated.resources.title_main_with_brackets
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun MainRoute() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//        Text("MAIN SCREEN")
+fun MainRoute(
+    screenState: MainScreenState,
+    effects: SharedFlow<MainScreenEffects>,
+    sendAction: (MainScreenAction) -> Unit
+) {
 
-        TableScreen()
+    LaunchedEffect(Unit) {
+        sendAction(MainScreenAction.Initialize)
     }
-}
 
-@Composable
-private fun MainScreen() {
-    val tableData = (1..100).mapIndexed { index, item ->
-        index to "Item $index"
-    }
-    val column1Weight = .3f // 30%
-    val column2Weight = .6f // 70%
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(1)
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
-        item {
-            Row(Modifier.background(Color.Gray), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                TableCell(text = "Column 1", weight = column1Weight)
-                VerticalDivider(modifier = Modifier, color = Color.Black, thickness = 2.dp)
-                TableCell(text = "Column 2", weight = column2Weight)
-            }
-            HorizontalDivider()
-        }
-        itemsIndexed(items = tableData) { index, item ->
-            val (id, text) = item
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                TableCell(text = id.toString(), weight = column1Weight)
-
-                VerticalDivider(modifier = Modifier, color = Color.Black, thickness = 2.dp)
-
-                TableCell(text = text, weight = column2Weight)
-            }
-            if (index < tableData.lastIndex) {
-                HorizontalDivider()
-            }
-        }
+        MainScreen(
+            screenState = screenState,
+            sendAction = sendAction
+        )
     }
 }
 
-@Composable
-fun TableScreen() {
 
-    val tableData = (1..100).mapIndexed { index, item ->
-        index to "Item $index"
-    }
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun MainScreen(
+    screenState: MainScreenState,
+    sendAction: (MainScreenAction) -> Unit,
+) {
+
+    Dialogs(dialogState = screenState.dialogState, sendAction = sendAction)
 
     val column1Weight = .3f // 30%
-    val column2Weight = .7f // 70%
 
-    LazyColumn(Modifier.fillMaxSize().padding(16.dp)) {
+    val languagePicker = rememberFilePickerLauncher { file ->
+        file?.also { platformFile ->
+            sendAction(
+                MainScreenAction.UploadLanguageFile(platformFile)
+            )
+        }
+    }
 
-        item {
-            Row(Modifier.background(Color.Gray)/*, horizontalArrangement = Arrangement.spacedBy(4.dp)*/) {
+    val translatePicker = rememberFilePickerLauncher { file ->
+        file?.also { platformFile ->
+            sendAction(
+                MainScreenAction.UploadTranslateFile(platformFile)
+            )
+        }
+    }
 
-                TableCellRightBorder(text = "Ключ", weight = column1Weight)
 
-                languages.forEachIndexed { index, language ->
-                    if (index != languages.lastIndex) {
-
-                        TableCellRightBorder(text = language.value, weight = column2Weight)
-                    } else {
-
-                        TableCell(text = language.value, weight = column2Weight)
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        floatingActionButton = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                MainMenu(
+                    showMenuState = screenState.needShowMenu,
+                    onAddClicked = languagePicker::launch,
+                    onUnloadXmlClicked = {
+                        sendAction(MainScreenAction.RequestUnloadXml)
+                    },
+                    onUploadTranslateClicked = translatePicker::launch
+                )
+                FloatingActionButton(
+                    onClick = {
+                        screenState.needShowMenu.value = true
                     }
-
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "upload"
+                    )
                 }
             }
-            HorizontalDivider()
+        }
+    ) {
+
+        val columnWeight by remember(screenState.lines) {
+            derivedStateOf {
+                (1f - column1Weight) / screenState.languages.size
+            }
         }
 
-        itemsIndexed(items = mock1) { index, item ->
-//            val (id, text) = item
-            val (key, translations) = item
-            Row(modifier = Modifier.fillMaxWidth(),/* horizontalArrangement = Arrangement.spacedBy(4.dp)*/) {
-                TableCellRightBorder(text = key, weight = column1Weight)
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.LightGray.copy(0.3f))
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
 
-                languages.forEachIndexed { index, language ->
-                    val tr = translations[language]
-                    if (index != languages.lastIndex) {
-                        TableCellRightBorder(text = tr?.value.orEmpty(), weight = column2Weight)
-                    } else {
-                        TableCell(text = tr?.value.orEmpty(), weight = column2Weight)
+            stickyHeader {
+                Row(
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.secondary)
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    TableCell(
+                        text = stringResource(Res.string.title_key),
+                        textColor = Color.White,
+                        weight = column1Weight
+                    )
+                    VerticalDivider(modifier = Modifier.fillMaxHeight())
+
+                    screenState.languages.forEachIndexed { index, language ->
+                        val languageText = if (!language.isMain) {
+                            language.value
+                        } else {
+                            "${language.value} ${stringResource(Res.string.title_main_with_brackets)}"
+                        }
+
+                        TableCell(
+                            textColor = Color.White,
+                            text = languageText,
+                            weight = columnWeight
+                        )
+
+                        if (index != screenState.languages.lastIndex) {
+                            VerticalDivider(modifier = Modifier.fillMaxHeight())
+                        }
                     }
-
                 }
-
-            }
-
-            if (index != mock1.lastIndex) {
                 HorizontalDivider()
             }
 
+            itemsIndexed(items = screenState.lines) { index, item ->
+                val (key, translations) = item
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White)
+                        .height(IntrinsicSize.Min),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    TableCell(text = key, weight = column1Weight)
+
+                    VerticalDivider(modifier = Modifier.fillMaxHeight())
+
+                    screenState.languages.forEachIndexed { index, language ->
+                        val translation = translations[language]
+
+                        TableCell(text = translation?.value.orEmpty(), weight = columnWeight)
+
+                        if (index != screenState.languages.lastIndex) {
+                            VerticalDivider(modifier = Modifier.fillMaxHeight())
+                        }
+
+                    }
+                }
+
+                if (index != screenState.lines.lastIndex) {
+                    HorizontalDivider()
+                }
+
+            }
+        }
+    }
+
+}
+
+
+@Composable
+private fun Dialogs(
+    dialogState: State<MainScreenState.Dialog>,
+    sendAction: (MainScreenAction) -> Unit,
+) {
+    when (val state = dialogState.value) {
+        is MainScreenState.Dialog.EnterLanguage -> {
+            LanguageDialog(
+                languageState = state.languageState,
+                isMainLanguageState = state.isMainLanguage,
+                hasMainLanguage = state.hasMainLanguage,
+                onApply = { language ->
+                    sendAction(MainScreenAction.SaveLines(language))
+                },
+                onClose = {
+                    sendAction(MainScreenAction.HideDialog)
+                }
+            )
+        }
+
+        MainScreenState.Dialog.Hide -> Unit
+
+        is MainScreenState.Dialog.SelectUnloadXmlLanguage -> {
+            SelectLanguageDialog(
+                languages = state.languages,
+                selectedLanguage = state.selectedLanguage,
+                onApply = { language ->
+                    sendAction(MainScreenAction.UnloadXml(language))
+                },
+                onClose = {
+                    sendAction(MainScreenAction.HideDialog)
+                }
+            )
+        }
+
+        is MainScreenState.Dialog.SelectUploadTranslateLanguage -> {
+            SelectLanguageDialog(
+                languages = state.languages,
+                selectedLanguage = state.selectedLanguage,
+                onApply = { language ->
+                    sendAction(MainScreenAction.AddTranslatedLines(language))
+                },
+                onClose = {
+                    sendAction(MainScreenAction.HideDialog)
+                }
+            )
         }
     }
 }
 
 @Composable
-fun RowScope.TableCell(
-    text: String,
-    weight: Float,
+private fun MainMenu(
+    showMenuState: MutableState<Boolean>,
+    onAddClicked: () -> Unit,
+    onUnloadXmlClicked: () -> Unit,
+    onUploadTranslateClicked: () -> Unit,
 ) {
-    Text(
-        text = text,
-        Modifier
-            .weight(weight)
-            .background(color = if (text.isNotEmpty()) Color.Transparent else Color.Red)
-            .padding(8.dp)
-    )
+    DropdownMenu(
+        expanded = showMenuState.value,
+        onDismissRequest = {
+            showMenuState.value = false
+        }
+    ) {
+        DropdownMenuItem(
+            text = {
+                Text(stringResource(Res.string.action_add_language))
+            },
+            onClick = {
+                showMenuState.value = false
+                onAddClicked()
+            }
+        )
+        DropdownMenuItem(
+            text = {
+                Text(stringResource(Res.string.action_upload_translate))
+            },
+            onClick = {
+                showMenuState.value = false
+                onUploadTranslateClicked()
+            }
+        )
+        DropdownMenuItem(
+            text = {
+                Text(stringResource(Res.string.action_unload_xml))
+            },
+            onClick = {
+                showMenuState.value = false
+                onUnloadXmlClicked()
+            }
+        )
+    }
 }
 
 @Composable
-fun RowScope.TableCellRightBorder(
+private fun RowScope.TableCell(
     text: String,
+    textColor: Color = MaterialTheme.colorScheme.onBackground,
     weight: Float,
 ) {
     Text(
         text = text,
-        Modifier
-            .rightBorder(1.dp, Color.Black)
+        color = textColor,
+        modifier = Modifier
             .weight(weight)
-            .background(color = if (text.isNotEmpty()) Color.Transparent else Color.Red)
+            .background(color = if (text.isNotEmpty()) Color.Transparent else MaterialTheme.colorScheme.errorContainer)
             .padding(8.dp)
-
     )
-}
-
-fun Modifier.bottomBorder(strokeWidth: Dp, color: Color) = composed(
-    factory = {
-        val density = LocalDensity.current
-        val strokeWidthPx = density.run { strokeWidth.toPx() }
-
-        Modifier.drawBehind {
-            val width = size.width
-            val height = size.height - strokeWidthPx/2
-
-            drawLine(
-                color = color,
-                start = Offset(x = 0f, y = height),
-                end = Offset(x = width , y = height),
-                strokeWidth = strokeWidthPx
-            )
-        }
-    }
-)
-
-fun Modifier.rightBorder(strokeWidth: Dp, color: Color) = composed(
-    factory = {
-        val density = LocalDensity.current
-        val strokeWidthPx = density.run { strokeWidth.toPx() }
-
-        Modifier.drawBehind {
-            val width = size.width
-            val height = size.height - strokeWidthPx/2
-
-            drawLine(
-                color = color,
-                start = Offset(x = width, y = 0f),
-                end = Offset(x = width , y = height),
-                strokeWidth = strokeWidthPx
-            )
-        }
-    }
-)
-
-enum class BorderPosition {
-    BOTTOM, RIGHT
 }

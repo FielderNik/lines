@@ -23,8 +23,8 @@ fun App(
 ) {
     initKoin()
 
-    val layoutDirection = LocalLayoutDirection.current
     val navigator = rememberAppNavigator()
+    val layoutDirection = LocalLayoutDirection.current
 
     AppTheme(
         isDarkTheme = isDarkTheme,

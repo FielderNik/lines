@@ -1,11 +1,16 @@
 package com.nikulin.lines.domain.models
 
+
 data class Line(
     val key: String,
-    val values: List<Translation>
+    val values: MutableMap<Language, Translation>
 )
 
-data class Line1(
-    val key: String,
-    val values: Map<Language, Translation>
-)
+fun MutableList<Line>.addLine(line: Line) {
+    val foundLine = this.find { it.key == line.key }
+    if (foundLine != null) {
+        foundLine.values.putAll(line.values)
+    } else {
+        this.add(line)
+    }
+}

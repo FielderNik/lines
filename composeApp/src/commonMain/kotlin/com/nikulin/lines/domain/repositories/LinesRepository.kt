@@ -2,85 +2,41 @@ package com.nikulin.lines.domain.repositories
 
 import com.nikulin.lines.domain.models.Language
 import com.nikulin.lines.domain.models.Line
-import com.nikulin.lines.domain.models.Line1
-import com.nikulin.lines.domain.models.Translation
+import com.nikulin.lines.domain.models.addLine
 
 interface LinesRepository {
     suspend fun getLines(): Result<List<Line>>
     suspend fun hasLines(): Result<Boolean>
+    suspend fun saveLines(lines: List<Line>): Result<Unit>
+    suspend fun getLanguages(): Result<List<Language>>
 }
 
 class LinesRepositoryImpl : LinesRepository {
+
+    private var lines: MutableList<Line> = mutableListOf()
+
     override suspend fun getLines(): Result<List<Line>> {
-        return Result.success(mock)
+        return Result.success(lines)
     }
 
     override suspend fun hasLines(): Result<Boolean> {
-        return Result.success(mock.isNotEmpty())
+        return Result.success(lines.isNotEmpty())
+    }
+
+    override suspend fun saveLines(lines: List<Line>): Result<Unit> {
+        lines.forEach { line ->
+            this.lines.addLine(line)
+        }
+        return Result.success(Unit)
+    }
+
+    override suspend fun getLanguages(): Result<List<Language>> {
+        return if (lines.isEmpty()) {
+            Result.failure(RuntimeException("lines empty"))
+        } else {
+            val languages = lines.map { it.values }.map { it.keys }.flatten().distinct()
+            Result.success(languages)
+        }
     }
 
 }
-
-val mock = listOf(
-    Line(
-        key = "action",
-        values = listOf(
-            Translation(
-                value = "действие",
-                language = Language("ru")
-            )
-        )
-    )
-)
-
-val mock1 = listOf(
-    Line1(
-        key = "action",
-        values = mapOf(
-            Language("ru") to Translation(
-                value = "действие",
-                language = Language("ru")
-            ),
-            Language("en") to Translation(
-                value = "action",
-                language = Language("en")
-            )
-        )
-    ),
-    Line1(
-        key = "apply",
-        values = mapOf(
-            Language("ru") to Translation(
-                value = "применить",
-                language = Language("ru")
-            ),
-            Language("en") to Translation(
-                value = "apply",
-                language = Language("en")
-            )
-        )
-    ),
-    Line1(
-        key = "table",
-        values = mapOf(
-            Language("ru") to Translation(
-                value = "стол",
-                language = Language("ru")
-            )
-        )
-    ),
-    Line1(
-        key = "chair",
-        values = mapOf(
-            Language("en") to Translation(
-                value = "chair",
-                language = Language("en")
-            )
-        )
-    ),
-)
-
-val languages = listOf(
-    Language("ru"),
-    Language("en"),
-)

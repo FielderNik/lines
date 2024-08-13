@@ -1,4 +1,3 @@
-import com.android.build.gradle.ProguardFiles.getDefaultProguardFile
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -10,12 +9,6 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
-}
-
-buildscript {
-    dependencies {
-        classpath(libs.proguard.gradle)
-    }
 }
 
 kotlin {
@@ -70,16 +63,22 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.composeVM)
 
             implementation(libs.navigation)
+
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.androidx.lifecycle.viewmodel.compose)
 
             implementation(libs.coroutines.core)
-            implementation("co.touchlab:stately-concurrent-collections:2.0.5")
+
+            implementation(libs.stately.concurrent.collections)
+
+            implementation(libs.filekit.compose)
+            implementation(libs.ksoup.html)
 
         }
         desktopMain.dependencies {
@@ -136,10 +135,6 @@ android {
     }
 }
 
-val obfuscate by tasks.registering(proguard.gradle.ProGuardTask::class)
-
-fun mapObfuscatedJarFile(file: File) =
-    File("${project.buildDir}/tmp/obfuscated/${file.nameWithoutExtension}.min.jar")
 
 compose.desktop {
     application {
@@ -150,35 +145,7 @@ compose.desktop {
             packageName = "com.nikulin.lines"
             packageVersion = "1.0.0"
         }
-        buildTypes {
-            release {
-                proguard {
-//                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
-                }
-
-            }
-        }
     }
 
 
 }
-
-obfuscate.configure {
-
-//    dependsOn(tasks.jar.get())
-//
-//    val allJars = tasks.jar.get().outputs.files + sourceSets.main.get().runtimeClasspath.filter { it.path.endsWith(".jar") }
-//        .filterNot { it.name.startsWith("skiko-awt-") && !it.name.startsWith("skiko-awt-runtime-") } // walkaround https://github.com/JetBrains/compose-jb/issues/1971
-//
-//    for (file in allJars) {
-//        injars(file)
-//        outjars(mapObfuscatedJarFile(file))
-//    }
-//
-//    libraryjars("${compose.desktop.application.javaHome ?: System.getProperty("java.home")}/jmods")
-
-    configuration("proguard-rules.pro")
-}
-
-

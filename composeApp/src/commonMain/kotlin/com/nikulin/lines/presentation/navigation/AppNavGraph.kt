@@ -3,19 +3,21 @@ package com.nikulin.lines.presentation.navigation
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.nikulin.lines.presentation.main.MainRoute
+import com.nikulin.lines.presentation.main.MainViewModel
 import com.nikulin.lines.presentation.splash.SplashRoute
 import com.nikulin.lines.presentation.splash.SplashViewModel
 import com.nikulin.lines.presentation.upload.UploadRoute
-import org.koin.compose.viewmodel.koinNavViewModel
+import com.nikulin.lines.presentation.upload.UploadViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 
 @OptIn(KoinExperimentalAPI::class)
 fun NavGraphBuilder.appNavGraph() {
 
     composable(
-        route = Destinations.Splash.route) {
-
-        val viewModel: SplashViewModel = koinNavViewModel<SplashViewModel>()
+        route = Destinations.Splash.route
+    ) {
+        val viewModel: SplashViewModel = koinViewModel<SplashViewModel>()
         val screenState = viewModel.screenState
 
         SplashRoute(
@@ -28,13 +30,25 @@ fun NavGraphBuilder.appNavGraph() {
     composable(
         route = Destinations.Main.route
     ) {
-        MainRoute()
+        val viewModel: MainViewModel = koinViewModel<MainViewModel>()
+        val screenState = viewModel.screenState
+        MainRoute(
+            screenState = screenState,
+            effects = viewModel.effects,
+            sendAction = viewModel::sendAction
+        )
     }
 
     composable(
         route = Destinations.Upload.route
     ) {
+        val viewModel: UploadViewModel = koinViewModel<UploadViewModel>()
+        val screenState = viewModel.screenState
 
-        UploadRoute()
+        UploadRoute(
+            screenState = screenState,
+            effects = viewModel.effects,
+            sendAction = viewModel::sendAction
+        )
     }
 }
