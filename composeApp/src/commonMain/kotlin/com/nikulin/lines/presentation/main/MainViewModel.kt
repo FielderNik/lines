@@ -100,9 +100,6 @@ class MainViewModel(
                 }
             }
         }
-        fileLines.forEach {
-            println(it)
-        }
         val fileContent = fileLines.values.joinToString(separator = "\n")
         writeFile(fileContent, language)
     }

@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
@@ -42,6 +42,9 @@ import com.nikulin.lines.presentation.components.dialogs.SelectLanguageDialog
 import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
 import kotlinx.coroutines.flow.SharedFlow
 import lines.composeapp.generated.resources.Res
+import lines.composeapp.generated.resources.action_add_language
+import lines.composeapp.generated.resources.action_unload_xml
+import lines.composeapp.generated.resources.action_upload_translate
 import lines.composeapp.generated.resources.title_key
 import lines.composeapp.generated.resources.title_main_with_brackets
 import org.jetbrains.compose.resources.stringResource
@@ -57,7 +60,10 @@ fun MainRoute(
         sendAction(MainScreenAction.Initialize)
     }
 
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
         MainScreen(
             screenState = screenState,
             sendAction = sendAction
@@ -76,7 +82,6 @@ fun MainScreen(
     Dialogs(dialogState = screenState.dialogState, sendAction = sendAction)
 
     val column1Weight = .3f // 30%
-    val column2Weight = .7f // 70%
 
     val languagePicker = rememberFilePickerLauncher { file ->
         file?.also { platformFile ->
@@ -115,7 +120,7 @@ fun MainScreen(
                     }
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.Edit,
+                        imageVector = Icons.Default.Edit,
                         contentDescription = "upload"
                     )
                 }
@@ -129,7 +134,13 @@ fun MainScreen(
             }
         }
 
-        LazyColumn(Modifier.fillMaxSize().padding(16.dp)) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.LightGray.copy(0.3f))
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
 
             stickyHeader {
                 Row(
@@ -173,6 +184,7 @@ fun MainScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(Color.White)
                         .height(IntrinsicSize.Min),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -269,7 +281,7 @@ private fun MainMenu(
     ) {
         DropdownMenuItem(
             text = {
-                Text("Добавить язык")
+                Text(stringResource(Res.string.action_add_language))
             },
             onClick = {
                 showMenuState.value = false
@@ -278,15 +290,7 @@ private fun MainMenu(
         )
         DropdownMenuItem(
             text = {
-                Text("Выгрузить для перевода")
-            },
-            onClick = {
-
-            }
-        )
-        DropdownMenuItem(
-            text = {
-                Text("Загрузить перевод")
+                Text(stringResource(Res.string.action_upload_translate))
             },
             onClick = {
                 showMenuState.value = false
@@ -295,7 +299,7 @@ private fun MainMenu(
         )
         DropdownMenuItem(
             text = {
-                Text("Выгрузить XML")
+                Text(stringResource(Res.string.action_unload_xml))
             },
             onClick = {
                 showMenuState.value = false
